@@ -20,9 +20,9 @@ const UserForm = () => {
             full_name: Yup.string().required('Nombre requerido'),
             email: Yup.string().email('Email inválido').required('Email requerido'),
             password: Yup.string().when([], {
-                is: () => !id, // solo requerido si es nuevo
+                is: !id, // Verifica si no hay un id, es decir, si es una creación de nuevo usuario
                 then: Yup.string().required('Contraseña requerida'),
-                otherwise: Yup.string().nullable(), // La contraseña es opcional en edición
+                otherwise: Yup.string().nullable(), // Contraseña no obligatoria en edición
             }),
         }),
         onSubmit: async (values) => {
