@@ -6,28 +6,30 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
 const Register = () => {
-    const navigate = useNavigate(); // Usamos navigate para redirigir
-    const [error, setError] = useState(''); // Estado para los errores
+    const navigate = useNavigate();
+    const [error, setError] = useState('');
 
-    // Configuración de Formik y Yup para validación
     const formik = useFormik({
         initialValues: {
             email: '',
             password: '',
             confirmPassword: '',
+            fullName: '', // Nuevo campo
         },
         validationSchema: Yup.object({
             email: Yup.string().email('Email inválido').required('Requerido'),
             password: Yup.string().min(6, 'La contraseña debe tener al menos 6 caracteres').required('Requerido'),
-            confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Las contraseñas no coinciden').required('Requerido'),
+            confirmPassword: Yup.string()
+                .oneOf([Yup.ref('password'), null], 'Las contraseñas no coinciden')
+                .required('Requerido'),
+            fullName: Yup.string().required('Requerido'), // Validación para nombre completo
         }),
         onSubmit: async (values) => {
             try {
-                // Intentamos registrar al nuevo usuario
-                await register(values.email, values.password);
-                navigate('/login'); // Redirigimos a la página de login después del registro exitoso
+                await register(values.email, values.password, values.fullName); // Enviamos fullName
+                navigate('/login');
             } catch (err) {
-                setError('Error al registrar el usuario'); // Mostramos un mensaje de error
+                setError('Error al registrar el usuario');
             }
         },
     });
@@ -38,8 +40,19 @@ const Register = () => {
                 <Typography component="h1" variant="h5">
                     Crear cuenta
                 </Typography>
-                {error && <Typography color="error">{error}</Typography>} {/* Mostrar error */}
+                {error && <Typography color="error">{error}</Typography>}
                 <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
+                    <TextField
+                        margin="normal"
+                        fullWidth
+                        id="fullName"
+                        label="Nombre completo"
+                        name="fullName"
+                        value={formik.values.fullName}
+                        onChange={formik.handleChange}
+                        error={formik.touched.fullName && Boolean(formik.errors.fullName)}
+                        helperText={formik.touched.fullName && formik.errors.fullName}
+                    />
                     <TextField
                         margin="normal"
                         fullWidth
@@ -47,7 +60,6 @@ const Register = () => {
                         label="Email"
                         name="email"
                         autoComplete="email"
-                        autoFocus
                         value={formik.values.email}
                         onChange={formik.handleChange}
                         error={formik.touched.email && Boolean(formik.errors.email)}

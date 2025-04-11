@@ -23,14 +23,15 @@ export const logout = () => {
 export const isAuthenticated = () => {
     return localStorage.getItem('token') !== null; // Verificamos si hay un token
 };
-export const register = async (email, password) => {
+export const register = async (email, password, full_name) => {
     try {
-        const response = await api.post('/users/', {
-            email: email,
-            password: password,
+        const response = await api.post('/register', {
+            email,
+            password,
+            full_name, // Asegurarse de incluirlo
         });
-        return response.data; // Retornamos la respuesta
+        return response.data;
     } catch (error) {
-        throw error.response.data; // Lanzamos el error si no es exitoso
+        throw error.response?.data || { detail: 'Error desconocido' };
     }
 };
