@@ -18,11 +18,11 @@ const UserForm = () => {
     const validationSchema = Yup.object().shape({
         full_name: Yup.string().required('Nombre requerido'),
         email: Yup.string().email('Email inválido').required('Email requerido'),
-        password: Yup.string().when([], {
-            is: () => !id,
-            then: Yup.string().required('Contraseña requerida'),
-            otherwise: Yup.string(),
-        }),
+        password: Yup.lazy(() =>
+            id
+                ? Yup.string() // No requerida al editar
+                : Yup.string().required('Contraseña requerida') // Requerida al crear
+        ),
     });
 
     useEffect(() => {
@@ -39,7 +39,8 @@ const UserForm = () => {
     }, [id]);
 
     const handleChange = (e) => {
-        setValues({ ...values, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setValues((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
@@ -47,11 +48,13 @@ const UserForm = () => {
         try {
             await validationSchema.validate(values, { abortEarly: false });
             setErrors({});
+
             if (isEdit) {
                 await api.put(`/users/${id}`, values);
             } else {
                 await api.post('/users', values);
             }
+
             navigate('/users');
         } catch (err) {
             if (err.name === 'ValidationError') {
