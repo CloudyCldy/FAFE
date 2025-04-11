@@ -1,31 +1,33 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Container, Box, Typography } from '@mui/material';
-import { login } from '../services/auth';
+import { register } from '../services/auth'; // Importamos la función de registro
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-const Login = () => {
-    const navigate = useNavigate(); // Para redirigir al usuario después de iniciar sesión
-    const [error, setError] = useState(''); // Estado para almacenar los errores
+const Register = () => {
+    const navigate = useNavigate(); // Usamos navigate para redirigir
+    const [error, setError] = useState(''); // Estado para los errores
 
-    // Configuración del formulario usando Formik y Yup para validaciones
+    // Configuración de Formik y Yup para validación
     const formik = useFormik({
         initialValues: {
             email: '',
             password: '',
+            confirmPassword: '',
         },
         validationSchema: Yup.object({
             email: Yup.string().email('Email inválido').required('Requerido'),
-            password: Yup.string().required('Requerido'),
+            password: Yup.string().min(6, 'La contraseña debe tener al menos 6 caracteres').required('Requerido'),
+            confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Las contraseñas no coinciden').required('Requerido'),
         }),
         onSubmit: async (values) => {
             try {
-                // Intentamos iniciar sesión con los valores del formulario
-                await login(values.email, values.password);
-                navigate('/users'); // Redirigimos a /users después de iniciar sesión
+                // Intentamos registrar al nuevo usuario
+                await register(values.email, values.password);
+                navigate('/login'); // Redirigimos a la página de login después del registro exitoso
             } catch (err) {
-                setError('Credenciales inválidas'); // Si ocurre un error, mostramos un mensaje
+                setError('Error al registrar el usuario'); // Mostramos un mensaje de error
             }
         },
     });
@@ -34,7 +36,7 @@ const Login = () => {
         <Container maxWidth="xs">
             <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <Typography component="h1" variant="h5">
-                    Iniciar sesión
+                    Crear cuenta
                 </Typography>
                 {error && <Typography color="error">{error}</Typography>} {/* Mostrar error */}
                 <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
@@ -58,14 +60,26 @@ const Login = () => {
                         label="Contraseña"
                         type="password"
                         id="password"
-                        autoComplete="current-password"
+                        autoComplete="new-password"
                         value={formik.values.password}
                         onChange={formik.handleChange}
                         error={formik.touched.password && Boolean(formik.errors.password)}
                         helperText={formik.touched.password && formik.errors.password}
                     />
+                    <TextField
+                        margin="normal"
+                        fullWidth
+                        name="confirmPassword"
+                        label="Confirmar Contraseña"
+                        type="password"
+                        id="confirmPassword"
+                        value={formik.values.confirmPassword}
+                        onChange={formik.handleChange}
+                        error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
+                        helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+                    />
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                        Iniciar sesión
+                        Registrar
                     </Button>
                 </Box>
             </Box>
@@ -73,4 +87,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default Register;

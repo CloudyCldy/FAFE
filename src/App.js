@@ -14,6 +14,8 @@ function App() {
           path="/users"
           element={isAuthenticated() ? <Users /> : <Navigate to="/login" />}
         />
+                        <Route path="/register" element={<Register />} />
+
         <Route
           path="/users/new"
           element={isAuthenticated() ? <UserForm /> : <Navigate to="/login" />}
