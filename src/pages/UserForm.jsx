@@ -14,7 +14,7 @@ const UserForm = () => {
         initialValues: {
             full_name: '',
             email: '',
-            password: '',
+            password: '', // La contraseña se mantiene vacía para la edición
         },
         validationSchema: Yup.object({
             full_name: Yup.string().required('Nombre requerido'),
@@ -22,17 +22,21 @@ const UserForm = () => {
             password: Yup.string().when([], {
                 is: () => !id, // solo requerido si es nuevo
                 then: Yup.string().required('Contraseña requerida'),
-                otherwise: Yup.string(),
+                otherwise: Yup.string().nullable(), // La contraseña es opcional en edición
             }),
         }),
         onSubmit: async (values) => {
             try {
                 if (isEdit) {
-                    await api.put(`/users/${id}`, values);
+                    // Eliminar la contraseña si está vacía para evitar enviar un campo innecesario
+                    if (!values.password) {
+                        delete values.password;
+                    }
+                    await api.put(`/users/${id}`, values); // Actualiza el usuario
                 } else {
-                    await api.post('/users', values);
+                    await api.post('/users', values); // Crea un nuevo usuario
                 }
-                navigate('/users');
+                navigate('/users'); // Redirige a la lista de usuarios
             } catch (error) {
                 console.error('Error al guardar usuario:', error);
             }
@@ -46,7 +50,7 @@ const UserForm = () => {
                 formik.setValues({
                     full_name: res.data.full_name,
                     email: res.data.email,
-                    password: '',
+                    password: '', // Mantener la contraseña vacía
                 });
             });
         }
