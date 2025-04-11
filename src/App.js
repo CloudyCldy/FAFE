@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import Users from './pages/Users';
 import UserForm from './pages/UserForm';
 import { isAuthenticated } from './services/auth';
+import Register from './pages/Register';
+
 
 function App() {
   return (
