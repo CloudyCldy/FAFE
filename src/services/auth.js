@@ -4,13 +4,13 @@ import api from './api'; // Este archivo debería configurar axios
 export const login = async (email, password) => {
     try {
         const response = await api.post('/token', {
-            username: email,
+            email: email, // 👈 Este campo debe ser "email", no "username"
             password: password,
         });
-        localStorage.setItem('token', response.data.access_token); // Guardamos el token
-        return response.data; // Retornamos la respuesta
+        localStorage.setItem('token', response.data.access_token);
+        return response.data;
     } catch (error) {
-        throw error.response.data; // Lanzamos el error si no es exitoso
+        throw error.response?.data || error;
     }
 };
 
