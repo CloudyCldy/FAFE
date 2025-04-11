@@ -32,6 +32,7 @@ const UserForm = () => {
                     delete values.password;
                 }
 
+                // Si es una edición, se actualiza el usuario, si no, se crea uno nuevo
                 if (isEdit) {
                     await api.put(`/users/${id}`, values); // Actualiza el usuario
                 } else {
@@ -48,14 +49,20 @@ const UserForm = () => {
         if (id) {
             setIsEdit(true);
             api.get(`/users/${id}`).then((res) => {
-                formik.setValues({
-                    full_name: res.data.full_name,
-                    email: res.data.email,
-                    password: '', // Mantener la contraseña vacía
-                });
+                // Verificar que los datos están correctamente obtenidos
+                if (res.data) {
+                    formik.setValues({
+                        full_name: res.data.full_name,
+                        email: res.data.email,
+                        password: '', // Mantener la contraseña vacía
+                    });
+                }
+            }).catch(error => {
+                console.error('Error al obtener usuario:', error);
+                // Puedes manejar algún mensaje de error aquí
             });
         }
-    }, [id, formik]);
+    }, [id]); // Dependencia solo de `id` para evitar renderizados innecesarios
 
     return (
         <Container maxWidth="sm">
