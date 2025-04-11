@@ -67,6 +67,14 @@ const Login = () => {
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                         Iniciar sesión
                     </Button>
+                    <Button
+                        fullWidth
+                        variant="outlined"
+                        sx={{ mt: 1 }}
+                        onClick={() => navigate('/register')} // Redirige a la página de registro
+                    >
+                        ¿No tienes cuenta? Regístrate
+                    </Button>
                 </Box>
             </Box>
         </Container>
