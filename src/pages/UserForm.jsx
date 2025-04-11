@@ -27,11 +27,12 @@ const UserForm = () => {
         }),
         onSubmit: async (values) => {
             try {
+                // Si estamos editando, eliminamos la contraseña vacía
+                if (isEdit && !values.password) {
+                    delete values.password;
+                }
+
                 if (isEdit) {
-                    // Eliminar la contraseña si está vacía para evitar enviar un campo innecesario
-                    if (!values.password) {
-                        delete values.password;
-                    }
                     await api.put(`/users/${id}`, values); // Actualiza el usuario
                 } else {
                     await api.post('/users', values); // Crea un nuevo usuario
@@ -54,7 +55,7 @@ const UserForm = () => {
                 });
             });
         }
-    }, [id]);
+    }, [id, formik]);
 
     return (
         <Container maxWidth="sm">
