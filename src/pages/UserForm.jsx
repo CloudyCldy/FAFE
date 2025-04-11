@@ -14,31 +14,25 @@ const UserForm = () => {
         initialValues: {
             full_name: '',
             email: '',
-            password: '', // La contraseña se mantiene vacía para la edición
+            password: '',
         },
         validationSchema: Yup.object({
             full_name: Yup.string().required('Nombre requerido'),
             email: Yup.string().email('Email inválido').required('Email requerido'),
             password: Yup.string().when([], {
-                is: !id, // Verifica si no hay un id, es decir, si es una creación de nuevo usuario
+                is: () => !id, // solo requerido si es nuevo
                 then: Yup.string().required('Contraseña requerida'),
-                otherwise: Yup.string().nullable(), // Contraseña no obligatoria en edición
+                otherwise: Yup.string(),
             }),
         }),
         onSubmit: async (values) => {
             try {
-                // Si estamos editando, eliminamos la contraseña vacía
-                if (isEdit && !values.password) {
-                    delete values.password;
-                }
-
-                // Si es una edición, se actualiza el usuario, si no, se crea uno nuevo
                 if (isEdit) {
-                    await api.put(`/users/${id}`, values); // Actualiza el usuario
+                    await api.put(`/users/${id}`, values);
                 } else {
-                    await api.post('/users', values); // Crea un nuevo usuario
+                    await api.post('/users', values);
                 }
-                navigate('/users'); // Redirige a la lista de usuarios
+                navigate('/users');
             } catch (error) {
                 console.error('Error al guardar usuario:', error);
             }
@@ -49,20 +43,14 @@ const UserForm = () => {
         if (id) {
             setIsEdit(true);
             api.get(`/users/${id}`).then((res) => {
-                // Verificar que los datos están correctamente obtenidos
-                if (res.data) {
-                    formik.setValues({
-                        full_name: res.data.full_name,
-                        email: res.data.email,
-                        password: '', // Mantener la contraseña vacía
-                    });
-                }
-            }).catch(error => {
-                console.error('Error al obtener usuario:', error);
-                // Puedes manejar algún mensaje de error aquí
+                formik.setValues({
+                    full_name: res.data.full_name,
+                    email: res.data.email,
+                    password: '',
+                });
             });
         }
-    }, [id]); // Dependencia solo de `id` para evitar renderizados innecesarios
+    }, [id]);
 
     return (
         <Container maxWidth="sm">
